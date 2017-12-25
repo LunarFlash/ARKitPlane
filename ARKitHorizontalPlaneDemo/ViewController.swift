@@ -49,6 +49,24 @@ extension ViewController: ARSCNViewDelegate {
     // gets called every time the scene view’s session has a new ARAnchor added
     // ARAnchor is an object that represents a physical location and orientation in 3D space.
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        guard let planeAnchor = anchor as? ARPlaneAnchor else { return }
+        
+        let width = CGFloat(planeAnchor.extent.x)
+        let height = CGFloat(planeAnchor.extent.z)
+        // SCNPlane is a rectangular “one-sided” plane geometry.
+        let plane = SCNPlane(width: width, height: height)
+        // Then we give the plane a transparent light blue color to simulate a body of water.
+        plane.materials.first?.diffuse.contents = UIColor.transparentLightBlue
+        
+        let planeNode = SCNNode(geometry: plane)
+        let x = CGFloat(planeAnchor.center.x)
+        let y = CGFloat(planeAnchor.center.y)
+        let z = CGFloat(planeAnchor.center.z)
+        planeNode.position = SCNVector3(x, y, z)
+        // We rotate the planeNode’s x euler angle by 90 degrees in the counter-clockerwise direction, else the planeNode will sit up perpendicular to the table.
+        planeNode.eulerAngles.x = -.pi / 2
+        
+        node.addChildNode(planeNode)
         
     }
 }
