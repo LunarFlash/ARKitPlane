@@ -1,7 +1,7 @@
 //
 //  ViewController.swift
 //  ARKitHorizontalPlaneDemo
-//
+//  https://www.appcoda.com/arkit-horizontal-plane/
 //  Created by Jayven Nhan on 11/14/17.
 //  Copyright © 2017 Jayven Nhan. All rights reserved.
 //
@@ -31,7 +31,11 @@ class ViewController: UIViewController {
     
     func setUpSceneView() {
         let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = .horizontal
         sceneView.session.run(configuration)
+        
+        sceneView.delegate = self
+        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
     }
     
     func configureLighting() {
@@ -39,6 +43,14 @@ class ViewController: UIViewController {
         sceneView.automaticallyUpdatesLighting = true
     }
     
+}
+
+extension ViewController: ARSCNViewDelegate {
+    // gets called every time the scene view’s session has a new ARAnchor added
+    // ARAnchor is an object that represents a physical location and orientation in 3D space.
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        
+    }
 }
 
 extension float4x4 {
