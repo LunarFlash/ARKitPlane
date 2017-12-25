@@ -15,7 +15,8 @@ class ARController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Uncomment to configure lighting
-        // configureLighting()
+        configureLighting()
+        addTapGuestureToSceneView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -42,6 +43,27 @@ class ARController: UIViewController {
         sceneView.automaticallyUpdatesLighting = true
     }
     
+    @objc func addShipToSceneView(withGuestureRecognizer recognizer: UIGestureRecognizer) {
+        let tapLocation = recognizer.location(in: sceneView)
+        let hitTestResults = sceneView.hitTest(tapLocation, types: .existingPlaneUsingExtent)
+        guard let hitTestResult = hitTestResults.first else { return }
+        let translation = hitTestResult.worldTransform.translation
+        let x = translation.x
+        let y = translation.y
+        let z = translation.z
+        
+        guard let shipScene = SCNScene(named: "ship.scn"),
+            let shipNode = shipScene.rootNode.childNode(withName: "ship", recursively: false)
+            else { return }
+        
+        shipNode.position = SCNVector3(x, y, z)
+        sceneView.scene.rootNode.addChildNode(shipNode)
+    }
+    
+    func addTapGuestureToSceneView() {
+        let tapGuestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ARController.addShipToSceneView(withGuestureRecognizer:)))
+        sceneView.addGestureRecognizer(tapGuestureRecognizer)
+    }
 }
 
 // MARK: - ARSCNViewDelegate
