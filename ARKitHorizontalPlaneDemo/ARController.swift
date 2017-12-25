@@ -1,15 +1,14 @@
 //
 //  ViewController.swift
-//  ARKitHorizontalPlaneDemo
 //  https://www.appcoda.com/arkit-horizontal-plane/
-//  Created by Jayven Nhan on 11/14/17.
+//  Created by Yi Wang on 11/14/17.
 //  Copyright © 2017 Jayven Nhan. All rights reserved.
 //
 
 import UIKit
 import ARKit
 
-class ViewController: UIViewController {
+class ARController: UIViewController {
     
     @IBOutlet weak var sceneView: ARSCNView!
     
@@ -45,7 +44,8 @@ class ViewController: UIViewController {
     
 }
 
-extension ViewController: ARSCNViewDelegate {
+// MARK: - ARSCNViewDelegate
+extension ARController: ARSCNViewDelegate {
     // gets called every time the scene view’s session has a new ARAnchor added
     // ARAnchor is an object that represents a physical location and orientation in 3D space.
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
@@ -66,8 +66,29 @@ extension ViewController: ARSCNViewDelegate {
         // We rotate the planeNode’s x euler angle by 90 degrees in the counter-clockerwise direction, else the planeNode will sit up perpendicular to the table.
         planeNode.eulerAngles.x = -.pi / 2
         
-        node.addChildNode(planeNode)
+        node.addChildNode(planeNode) // add it to the node being passed in
+    }
+    
+    // With ARKit receiving additional information about our environment, we may want to expand our previously detected horizontal plane(s) to make use of a larger surface or have a more accurate representation with the new information.
+    //  where ARKit refines its estimation of the horizontal plane’s position and extent.
+    //  node argument gives us the updated position of the anchor. The anchor argument gives us the anchor’s updated width and height.
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+        guard let planeAchor = anchor as? ARPlaneAnchor,
+            let planeNode = node.childNodes.first,
+            let plane = planeNode.geometry as? SCNPlane
+            else { return }
         
+        // we update the plane’s width and height using the planeAnchor extent’s x and z properties.
+        let width = CGFloat(planeAchor.extent.x)
+        let height = CGFloat(planeAchor.extent.z)
+        plane.width = width
+        plane.height = height
+        
+        // update the planeNode’s position to the planeAnchor’s center x, y, and z coordinates.
+        let x = CGFloat(planeAchor.center.x)
+        let y = CGFloat(planeAchor.center.y)
+        let z = CGFloat(planeAchor.center.z)
+        planeNode.position = SCNVector3(x, y, z)
     }
 }
 
